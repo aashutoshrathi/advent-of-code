@@ -11,7 +11,7 @@ const parseInputToObjects = (input) => {
   });
 };
 
-const solveIt = (parsedInputs, isLarge) => {
+const solveIt = (parsedInputs, useB) => {
   const signalStrengths = [];
   const measureCycles = [20, 60, 100, 140, 180, 220];
 
@@ -35,14 +35,14 @@ const solveIt = (parsedInputs, isLarge) => {
 
 const main = (args) => {
   const useSampleInput = args[0] === "y";
-  const useLargeInputs = args[1] === "b"; // can be or 'a' or 'b'
+  const useB = args[1] === "b"; // can be or 'a' or 'b'
 
   const input = fs
     .readFileSync(`./${useSampleInput ? "sample-" : ""}input.txt`)
     .toString();
 
   const parsedInputs = parseInputToObjects(input);
-  const signalStrengths = solveIt(parsedInputs, useLargeInputs);
+  const signalStrengths = solveIt(parsedInputs, useB);
   // console.log(signalStrengths);
   const result = signalStrengths.reduce((a, b) => a + b, 0);
   console.log(result);

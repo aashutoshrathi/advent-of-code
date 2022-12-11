@@ -58,12 +58,11 @@ const solveIt = (parsedInputs, isLarge) => {
 };
 
 const main = (args) => {
-  const fileName = args[0].split("/").pop().split(".")[0];
-  const useSampleInput = args[1] === "y";
-  const useLargeInputs = args[2] === "b"; // can be or 'a' or 'b'
+  const useSampleInput = args[0] === "y";
+  const useLargeInputs = args[1] === "b"; // can be or 'a' or 'b'
 
   const input = fs
-    .readFileSync(`./${fileName}${useSampleInput ? ".sample" : ""}.input.txt`)
+    .readFileSync(`./${useSampleInput ? "sample-" : ""}input.txt`)
     .toString();
 
   const parsedInputs = parseInputToObjects(input);
@@ -74,4 +73,4 @@ const main = (args) => {
   console.log(result);
 };
 
-main(process.argv.slice(1));
+main(process.argv.slice(2));
