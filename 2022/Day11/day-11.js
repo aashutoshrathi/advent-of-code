@@ -1,65 +1,42 @@
 const fs = require("fs");
-const { toCamelCase } = require("../../utils");
 
 let allDivisors = 1;
+const INPUT_REGEX =
+  /Monkey (\d+):\n  Starting items: ([0-9|,| ]+)\n  Operation: (.*)\n  Test: divisible by (\d+)\n    If true: throw to monkey (\d+)\n    If false: throw to monkey (\d+)/;
 
 const parseInputToObjects = (input) => {
-  const parseValue = (key, value) => {
-    switch (key) {
-      case "Starting items":
-        return value.split(", ").map((item) => parseInt(item));
-      case "Operation":
-        const rhs = value.split("=")[1].trim();
-        const fun = Function("old", `return ${rhs};`);
-        return fun;
-      case "Test":
-        const divisor = parseInt(value.split("divisible by ")[1]);
-        allDivisors = allDivisors * divisor;
-        return Function("arg", `return arg % ${divisor} === 0;`);
-      case "If true":
-      case "If false":
-        return parseInt(value.split("throw to monkey ")[1]);
-      default:
-        return value;
-    }
-  };
-
   const inputs = [];
-  const lines = input.split("\n");
-  let currentMonkey = {};
+  const lines = input.split("\n\n");
   lines.forEach((line) => {
-    if (line.length === 0) {
-      inputs.push(currentMonkey);
-    }
+    const [_, index, items, operation, divisor, ifTrue, ifFalse] =
+      line.match(INPUT_REGEX);
 
-    if (line.startsWith("Monkey ")) {
-      const monkeyIndex = parseInt(line.split(" ")[1].split(":")[0]);
-      currentMonkey = { monkeyIndex };
-    }
-
-    if (line.startsWith("  ")) {
-      const [key, value] = line.split(":");
-      const k = key.trim();
-      currentMonkey[toCamelCase(k)] = parseValue(k, value.trim());
-    }
+    currentMonkey = {
+      monkeyIndex: parseInt(index),
+      startingItems: items.split(", ").map((item) => parseInt(item)),
+      operation: Function("old", `return ${operation.split("=")[1].trim()};`),
+      test: Function("arg", `return arg % ${divisor} === 0;`),
+      ifTrue: parseInt(ifTrue),
+      ifFalse: parseInt(ifFalse),
+      inspections: 0,
+    };
+    allDivisors = allDivisors * parseInt(divisor);
+    inputs.push(currentMonkey);
   });
+
   return inputs;
 };
 
 const solveIt = (parsedInputs, isLarge) => {
   const monkeys = [...parsedInputs];
-  const inspections = {};
 
   for (let j = 0; j < (isLarge ? 10000 : 20); j++) {
     for (let i = 0; i < monkeys.length; i++) {
       const monkey = monkeys[i];
       const { startingItems, operation, test, ifTrue, ifFalse } = monkey;
-      const items = [];
+      monkeys[i].inspections += startingItems.length;
 
-      if (!inspections[i]) {
-        inspections[i] = 0;
-      }
-      inspections[i] += startingItems.length;
+      const items = [];
 
       startingItems.forEach((item) => {
         const newValue = Math.floor(
@@ -77,7 +54,7 @@ const solveIt = (parsedInputs, isLarge) => {
     }
   }
 
-  return inspections;
+  return monkeys.map((monkey) => monkey.inspections).sort((a, b) => b - a);
 };
 
 const main = (args) => {
@@ -91,13 +68,9 @@ const main = (args) => {
 
   const parsedInputs = parseInputToObjects(input);
 
-  const monkeyWiseInspections = solveIt(parsedInputs, useLargeInputs);
+  const inspections = solveIt(parsedInputs, useLargeInputs);
 
-  const totalInspections = Object.values(monkeyWiseInspections).sort(
-    (a, b) => b - a
-  );
-
-  const result = totalInspections[0] * totalInspections[1];
+  const result = inspections[0] * inspections[1];
   console.log(result);
 };
 
