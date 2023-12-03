@@ -1,7 +1,7 @@
 const {
   getInputs,
   sumOfArray,
-  isNonAlphaNonDotNumeric,
+  isNonAlphaNumericNonDot,
 } = require("../../lib/utils");
 
 // check if there is a symbol around the number in matrix, even diagonally
@@ -11,13 +11,13 @@ const hasSymbolAroundIt = (matrix, x, y, len) => {
   let around = false;
 
   if (x > 0) {
-    if (isNonAlphaNonDotNumeric(matrix[y][x - 1])) {
+    if (isNonAlphaNumericNonDot(matrix[y][x - 1])) {
       around = true;
     }
   }
 
   if (x + len < matrix[y].length) {
-    if (isNonAlphaNonDotNumeric(matrix[y][x + len])) {
+    if (isNonAlphaNumericNonDot(matrix[y][x + len])) {
       around = true;
     }
   }
@@ -29,7 +29,7 @@ const hasSymbolAroundIt = (matrix, x, y, len) => {
   if (y > 0) {
     above = Array.from({ length: len }).some((_, i) => {
       if (x + i < matrix[y - 1].length) {
-        if (isNonAlphaNonDotNumeric(matrix[y - 1][x + i])) {
+        if (isNonAlphaNumericNonDot(matrix[y - 1][x + i])) {
           return true;
         }
       }
@@ -38,13 +38,13 @@ const hasSymbolAroundIt = (matrix, x, y, len) => {
 
     // check -1
     if (x - 1 >= 0) {
-      if (isNonAlphaNonDotNumeric(matrix[y - 1][x - 1])) {
+      if (isNonAlphaNumericNonDot(matrix[y - 1][x - 1])) {
         above = true;
       }
     }
 
     if (x + len < matrix[y - 1].length) {
-      if (isNonAlphaNonDotNumeric(matrix[y - 1][x + len])) {
+      if (isNonAlphaNumericNonDot(matrix[y - 1][x + len])) {
         above = true;
       }
     }
