@@ -1,4 +1,4 @@
-const { getInputs, sumOfArray } = require("../../lib/utils");
+const { getInputs } = require("../../lib/utils");
 
 const inputs = getInputs(`${__dirname}/input.txt`, "\n\n");
 
