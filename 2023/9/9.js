@@ -19,7 +19,6 @@ const partOne = () => {
     }
     toSum.push(lastNum + d);
   });
-  console.log(toSum);
   return toSum.reduce((acc, cur) => acc + cur, 0);
 };
 
