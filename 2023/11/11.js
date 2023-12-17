@@ -1,4 +1,4 @@
-const { getInputs, sumOfArray } = require("../../lib/utils");
+const { getInputs, sumOfArray, swap } = require("../../lib/utils");
 
 const inputs = getInputs(`${__dirname}/input.txt`, "\n");
 
@@ -63,6 +63,81 @@ const partOne = () => {
   return sumOfArray(distancesBetweenGalaxies);
 };
 
-const partTwo = () => {};
+const partTwo = (exp_factor = 2) => {
+  const emptyColumns = [];
+  inputs[0].split("").forEach((_, i) => {
+    const col = inputs.map((row) => row[i]).join("");
+    if (!col.includes("#")) {
+      emptyColumns.push(i);
+    }
+  });
 
-console.log("Res:", partOne());
+  const emptyRows = [];
+  inputs.forEach((row, i) => {
+    if (!row.includes("#")) {
+      emptyRows.push(i);
+    }
+  });
+
+  console.log(`Empty cols: ${emptyColumns}`);
+  console.log(`Empty rows: ${emptyRows}`);
+
+  const galaxies = [];
+
+  for (let i = 0; i < inputs.length; i++) {
+    const row = inputs[i];
+    for (let j = 0; j < row.length; j++) {
+      const char = row[j];
+      if (char === "#") {
+        galaxies.push({ x: j, y: i });
+      }
+    }
+  }
+  console.log(galaxies);
+
+  const numberOfEmptyColumns = (xa, xb) => {
+    if (xa > xb) {
+      [xa, xb] = swap(xa, xb);
+    }
+    let cols = 0;
+    for (let i = xa; i < xb; i++) {
+      if (emptyColumns.includes(i)) {
+        cols++;
+      }
+    }
+    return cols;
+  };
+
+  const numberOfEmptyRows = (ya, yb) => {
+    if (ya > yb) {
+      [ya, yb] = swap(ya, yb);
+    }
+    let rows = 0;
+    for (let i = ya; i < yb; i++) {
+      if (emptyRows.includes(i)) {
+        rows++;
+      }
+    }
+    return rows;
+  };
+
+  const distancesBetweenGalaxies = [];
+
+  for (let i = 0; i < galaxies.length; i++) {
+    const g1 = galaxies[i];
+    for (let j = i + 1; j < galaxies.length; j++) {
+      const g2 = galaxies[j];
+      let distance = Math.abs(g1.x - g2.x) + Math.abs(g1.y - g2.y);
+
+      distance +=
+        (exp_factor - 1) *
+        (numberOfEmptyColumns(g1.x, g2.x) + numberOfEmptyRows(g1.y, g2.y));
+      distancesBetweenGalaxies.push(distance);
+    }
+  }
+
+  console.log(distancesBetweenGalaxies);
+  return sumOfArray(distancesBetweenGalaxies);
+};
+
+console.log("Res:", partTwo(1_000_000));
