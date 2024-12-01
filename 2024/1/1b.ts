@@ -1,18 +1,17 @@
 const main = () => {
     const input = new TextDecoder().decode(Deno.readFileSync("./input.txt")).split("\n");
+    console.log(input)
     let result = 0;
     const listA: number[] = []
-    const listB: number[] = []
+    const freqInB: Record<number, number> = {}
     for (const line of input) {
         const [a, b] = line.split("   ").map((x) => parseInt(x, 10));
         listA.push(a);
-        listB.push(b);
+        freqInB[b] = (freqInB[b] || 0) + 1;
     }
-    listA.sort((a, b) => a - b);
-    listB.sort((a, b) => a - b);
 
     for (let i = 0; i < listA.length; i++) {
-        result += Math.abs(listA[i] - listB[i]);
+        result += listA[i] * (freqInB[listA[i]] || 0);
     }
     return result;
 };
