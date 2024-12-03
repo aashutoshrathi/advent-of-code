@@ -1,6 +1,6 @@
+// 23963899
 const main = () => {
     const input = new TextDecoder().decode(Deno.readFileSync("./input.txt")).split("\n");
-    console.log(input)
     let result = 0;
     const listA: number[] = []
     const freqInB: Record<number, number> = {}
