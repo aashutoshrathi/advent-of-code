@@ -1,19 +1,23 @@
 const INPUT_FILE = "./input.txt";
 
-const isSafeDiff = (diff: number) => {
-  const absDiff = Math.abs(diff);
-  return absDiff >= 1 && absDiff <= 3;
-}
-
-const isSafeNow = (arr: number[]) => {
-  for (let i = 1; i < arr.length; i += 1) {
-    const diff = arr[i] - arr[i - 1];
-    if (!isSafeDiff(diff)) {
-      return false;
+const getBadIdx = (lvl: number[]) => {
+  let badIdx = -1;
+  const isIncr = lvl[1] > lvl[0];
+  for (let i = 1; i < lvl.length; i++) {
+    const diff = lvl[i] - lvl[i - 1];
+    if (Math.abs(diff) > 3 || diff === 0 || (diff > 0) !== isIncr) {
+      badIdx = i;
+      break;
     }
   }
+  return badIdx;
+}
 
-  return true;
+const deleteNth = (arr: number[], n: number) => {
+  if (n < 0 || n >= arr.length) {
+    return arr;
+  }
+  return arr.filter((_, i) => i !== n);
 }
 
 const main = () => {
@@ -24,19 +28,17 @@ const main = () => {
 
   for (let i = 0; i < levels.length; i++) {
     const level = levels[i];
-    let tolerateCount = 0;
-
-    const sign = Math.sign(level[1] - level[0]);
-    for (let j = 1; j < level.length; j += 1) {
-      const diff = level[j] - level[j - 1];
-      if (Math.sign(diff) !== sign || !isSafeDiff(diff) || diff === 0) {
-        console.log(`Increasing tolerance for ${i} at ${j - 1} as getting diff ${diff}`)
-        tolerateCount += 1;
+    const badIdx = getBadIdx(level);
+    let isSafe = badIdx === -1;
+    if (!isSafe) {
+      console.log(`Level ${i + 1} is not safe, badIdx: ${badIdx}`);
+      isSafe = getBadIdx(deleteNth(level, badIdx)) === -1 || getBadIdx(deleteNth(level, badIdx - 1)) === -1 || getBadIdx(deleteNth(level, 0)) === -1;
+      if (isSafe) {
+        console.log(`Level ${i + 1} is safe after removing badIdx: ${badIdx}`);
       }
     }
 
-    if (tolerateCount <= 1) {
-      console.log(`Marking level ${i} as safe`);
+    if (isSafe) {
       safeCount += 1;
     }
   }
