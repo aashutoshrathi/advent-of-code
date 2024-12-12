@@ -60,26 +60,44 @@ const main = () => {
   }
 
   let res = 0;
+
+  const fixUpdates = (icU: number[]) => {
+    const badPair = pairs.find(([a, b]) => {
+      if (icU.includes(a) && icU.includes(b)) {
+        return icU.indexOf(a) > icU.indexOf(b);
+      }
+      return false;
+    })
+    if (badPair) {
+      const [a, b] = badPair;
+      const aIndex = icU.indexOf(a);
+      const bIndex = icU.indexOf(b);
+      ([icU[aIndex], icU[bIndex]] = [icU[bIndex], icU[aIndex]])
+      return fixUpdates(icU)
+    }
+    return icU;
+  }
   // fix the incorrect updates using topological sorting
   for (const icU of incorrectUpdates) {
-    const stack: number[] = [];
-    const visited: Record<number, boolean> = {};
-    for (let num of icU) {
-      if (icU.includes(num)) {
-        if (!visited[num]) {
-          dfs(num, visited, stack);
-        }
-        visited[num] = true;
-      }
-    }
-    const fixedUpdate: number[] = [];
-    stack.forEach((node) => {
-      if (icU.includes(node) && !fixedUpdate.includes(node)) {
-        fixedUpdate.push(node);
-      }
-    })
-    console.log(fixedUpdate.reverse())
-    res += fixedUpdate[Math.floor(fixedUpdate.length / 2)]
+    // const stack: number[] = [];
+    // const visited: Record<number, boolean> = {};
+    // for (const num of icU) {
+    //   if (!visited[num]) {
+    //     dfs(num, visited, stack);
+    //   }
+    //   visited[num] = true;
+    // }
+
+    // const fixedUpdate: number[] = [];
+    // stack.forEach((node) => {
+    //   if (icU.includes(node) && !fixedUpdate.includes(node)) {
+    //     fixedUpdate.push(node);
+    //   }
+    // })
+    // console.log(fixedUpdate.reverse())
+    const fixed = fixUpdates(icU)
+    // console.log(fixed)
+    res += fixed[Math.floor(fixed.length / 2)]
   }
 
   return res;
