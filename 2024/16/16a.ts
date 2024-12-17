@@ -1,7 +1,5 @@
 const INPUT_FILE = Deno.args[0] === "prod" ? "./main_input.txt" : "./input.txt";
 
-const INT_MAX = Infinity;
-
 const main = () => {
   const inputs = Deno.readTextFileSync(INPUT_FILE).split("\n");
   const maze = inputs.map((row) => row.split(""));
@@ -46,54 +44,51 @@ const main = () => {
     3: [0, -1]   // LEFT
   };
 
-  const cache: Record<string, number> = {}
+  const ptWiseMinScore: Record<string, number> = {}
 
-  const walkTheMaze = (
-    curr: number[],
-    currentFace: number,
-    score: number,
-    visited: Set<string> = new Set()
-  ): number => {
-    const [x, y] = curr;
-    const posKey = `${x},${y}`;
-    const cacheKey = `${posKey},${currentFace}`;
-    // Bounds and wall check
-    if (x < 0 || y < 0 || x >= maze.length || y >= maze[0].length || maze[x][y] === "#" || visited.has(posKey)) {
-      return INT_MAX;
-    }
+  let queue: number[][] = [[...start, 1, 0]];
+  let res = Infinity;
 
-    // printMaze([x, y])
+  const visited = new Set<string>();
 
-    // End condition
-    if (maze[x][y] === "E") {
-      return 0;
-    }
+  while (queue.length) {
+    const newQueue: number[][] = [];
+    for (const pt of queue) {
+      const [x, y, face, score] = pt;
 
-    if (cache[cacheKey]) {
-      return cache[cacheKey];
-    }
-    // Mark position as visited
-    visited.add(posKey);
-    const availableMoves = [currentFace, (currentFace + 1) % 4, (currentFace + 3) % 4];
+      const posKey = `${x},${y}`;
+      const cacheKey = `${posKey},${face}`;
+      // Bounds and wall check
+      if (x < 0 || y < 0 || x >= maze.length || y >= maze[0].length || maze[x][y] === "#" || ptWiseMinScore[cacheKey] < score) {
+        continue;
+      }
 
-    let min = INT_MAX;
-    for (const move of availableMoves) {
-      const [dx, dy] = DIR_TO_MOVEMENT[move];
-      const nextPos = [x + dx, y + dy];
-
-      const nextVisited = new Set(visited);
-      const res = walkTheMaze(nextPos, move, 0, nextVisited);
+      ptWiseMinScore[cacheKey] = score;
       // printMaze([x, y])
-      const nextScore = res + score + (move !== currentFace ? 1001 : 1)
-      min = Math.min(min, nextScore);
+
+      // End condition
+      if (maze[x][y] === "E") {
+        // console.log(queue)
+        if (score < res) {
+          res = score;
+        }
+        continue;
+      }
+      // Mark position as visited
+      visited.add(posKey);
+      const availableMoves = [face, (face + 1) % 4, (face + 3) % 4];
+
+      for (const move of availableMoves) {
+        const [dx, dy] = DIR_TO_MOVEMENT[move];
+        const nextPos = [x + dx, y + dy];
+        const nextScore = score + (face === move ? 1 : 1001);
+        newQueue.push([...nextPos, move, nextScore]);
+      }
     }
 
-    visited.delete(posKey);
-    cache[cacheKey] = min;
-    return min;
+    queue = newQueue;
   }
 
-  const res = walkTheMaze(start, 1, 0)
   return res;
 }
 console.log(main());
