@@ -46,18 +46,25 @@ const main = () => {
 
   const ptWiseMinScore: Record<string, number> = {}
 
-  let queue: number[][] = [[...start, 1, 0]];
+  let queue: any[][] = [[...start, 1, 0, '']];
   let res = Infinity;
+  const paths = [];
 
   while (queue.length) {
     const newQueue: number[][] = [];
     for (const pt of queue) {
       const [x, y, face, score] = pt;
-
+      let path = pt[4];
       const posKey = `${x},${y}`;
       const cacheKey = `${posKey},${face}`;
       // Bounds and wall check
-      if (x < 0 || y < 0 || x >= maze.length || y >= maze[0].length || maze[x][y] === "#" || ptWiseMinScore[cacheKey] < score) {
+      if (x < 0 || y < 0 || x >= maze.length || y >= maze[0].length || maze[x][y] === "#") {
+        continue;
+      }
+
+      path += `${posKey}->`;
+
+      if (ptWiseMinScore[cacheKey] && ptWiseMinScore[cacheKey] < score) {
         continue;
       }
 
@@ -66,7 +73,8 @@ const main = () => {
 
       // End condition
       if (maze[x][y] === "E") {
-        // console.log(queue)
+        console.log(path, score, path.split("->").length)
+        paths.push([path, score]);
         if (score < res) {
           res = score;
         }
@@ -78,13 +86,27 @@ const main = () => {
         const [dx, dy] = DIR_TO_MOVEMENT[move];
         const nextPos = [x + dx, y + dy];
         const nextScore = score + (face === move ? 1 : 1001);
-        newQueue.push([...nextPos, move, nextScore]);
+        newQueue.push([...nextPos, move, nextScore, path]);
       }
     }
 
     queue = newQueue;
   }
 
+  const uniqueSeats: Set<string> = new Set();
+  const bestPaths = paths.filter((path) => path[1] === res);
+
+  for (const [path] of bestPaths) {
+    const seats = path.split("->");
+    for (const seat of seats) {
+      if (seat === "") {
+        continue;
+      }
+      uniqueSeats.add(seat);
+    }
+  }
+
+  console.log(uniqueSeats.size, [...uniqueSeats])
   return res;
 }
 console.log(main());
